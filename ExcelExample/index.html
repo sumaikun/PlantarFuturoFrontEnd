@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title>Example app</title>
+
+    <!-- Jquery -->
+		<script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+		<link href="//maxcdn.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
+		<script src="//maxcdn.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js"></script>
+
+		<!-- Data table -->
+
+		<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/dt/dt-1.10.18/datatables.min.css"/>
+		<script type="text/javascript" src="https://cdn.datatables.net/v/dt/dt-1.10.18/datatables.min.js"></script>
+
+
+		<!-- Angular js -->
+		<script src="https://code.angularjs.org/1.3.11/angular.js"></script>
+    <script src="https://code.angularjs.org/1.3.11/angular-route.js"></script>
+
+    <!--Libraries -->
+    <script src="Librerias/angular-js-xlsx.js"></script>
+    <script src="Librerias/date.js"></script>
+    <script src="Librerias/xlsx.full.min.js"></script>
+
+
+    <!-- Angular Programs -->
+    <script src="angular/ExcelProgram.js"></script>
+
+    <!--- Bootstrap -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+
+		<!--Custom styles-->
+
+
+
+		<!-- Font Awesome -->
+		<link href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
+
+		<script defer src="https://use.fontawesome.com/releases/v5.0.10/js/all.js" integrity="sha384-slN8GvtUJGnv6ca26v8EzVaR9DC58QEwsIk9q1QXdCU8Yu8ck/tL/5szYlBbqmS+" crossorigin="anonymous"></script>
+
+		<!-- Sweet Alwert -->
+	  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/limonte-sweetalert2/7.28.1/sweetalert2.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/limonte-sweetalert2/7.28.1/sweetalert2.all.js"></script>
+
+
+  </head>
+  <body ng-app="ExcelModule">
+      <div class="col-lg-4" ng-controller="testController" style="display: table;
+    margin-left: 25%;
+    margin-right: 25%;
+    margin-top: 15%;">
+        <div class="panel panel-primary">
+  			  <div class="panel-heading">Ejemplo de excel</div>
+  			  <div class="panel-body">  			  	  
+              <js-xlsx onread="read" onerror="error"></js-xlsx>
+  			      <button ng-click="sendDataToServer()" class="btn btn-primary">Mandar excel</button> 
+          </div>
+  			</div>
+      </div>
+  </body>
+</html>
