@@ -1,0 +1,354 @@
+
+<head>
+	<style>
+		#contenido{margin-top: 45px;}
+		input[type="text"]
+		{
+		    font-size:14px;
+		}
+	</style>	
+	
+
+  	<!-- Jquery  -->
+	<script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+	
+	<!--- Bootstrap -->	        
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+
+	<!--Custom scripts-->
+
+
+	<!--Libraries-->
+	<script src="Angular/Libraries/table.js"></script>
+
+
+	<!-- Angular js -->
+	<script src="https://code.angularjs.org/1.3.11/angular.js"></script>
+
+	<!-- Angular Libraries -->
+	<link rel="stylesheet"; href="https://unpkg.com/ng-table@2.0.2/bundles/ng-table.min.css">
+	<script src="https://unpkg.com/ng-table@2.0.2/bundles/ng-table.min.js"></script>
+	<script src="https://angular-ui.github.io/bootstrap/ui-bootstrap-tpls-0.11.0.js"></script>
+
+	<!-- Angular Flux -->
+
+	<script src="Angular/Libraries/flux-angular.js"></script>
+      
+	<!-- Abstract Implementations -->
+	<script src="Angular/properties/protegemeConstants.js"></script>
+	<script src="Angular/AbstractImplementations/CrudImplementation.js"></script>
+
+
+	<!--Custom styles-->	
+	<link href="estilos/mxkollection3.css" rel="stylesheet" type="text/css" />
+	<script language='javascript' src='popcalendar.js'></script>
+	<link rel="STYLESHEET" type="text/css" href="estilos/imprimir.css" media="print">
+	<link rel="STYLESHEET" type="text/css" href="css/tableResize.css" >
+
+	
+	<!-- Font Awesome -->
+	<link href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
+
+	<script defer src="https://use.fontawesome.com/releases/v5.0.10/js/all.js" integrity="sha384-slN8GvtUJGnv6ca26v8EzVaR9DC58QEwsIk9q1QXdCU8Yu8ck/tL/5szYlBbqmS+" crossorigin="anonymous"></script>
+
+	<!-- Sweet Alwert -->
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/limonte-sweetalert2/7.28.1/sweetalert2.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/limonte-sweetalert2/7.28.1/sweetalert2.all.js"></script>
+
+
+ 	
+
+</head>
+
+<style>
+	.panel.panel-primary{
+		margin-top: 8%;
+	}
+
+</style>
+
+<body ng-app="UserPqr">
+
+	
+	<div class="container">
+		<div class="col-lg-12 subcontainer " ng-controller="userController">
+			
+			<div class="panel panel-primary">				
+			  <div class="panel-heading">Administración de usuarios PQR</div>
+			  <div class="panel-body">			  	
+			  	<div ng-include="'Angular/Views/crudTable.html'" ></div>			  	
+			  </div>
+			  <div class="panel-footer"></div>
+			</div>
+		</div>
+	</div>
+	<div ng-controller="modalController">				
+		<div ng-include="'Angular/Views/PasswordModal.html'" ></div>
+	</div>	
+	<div ng-controller="frontController">		
+		<div class="loading" ng-if="isLoading"><img src="http://www.nasa.gov/multimedia/videogallery/ajax-loader.gif"/>CARGANDO...</div>
+	</div>	
+</body>
+
+<script>
+	
+	//opera la vista
+	ChildCtrl = function($scope, $filter , store, actions)  {
+	  	
+		$scope.test2 = "i am the child controller";
+
+	  	CrudCtrl.call(this, $scope, $filter);
+	  	
+	  	store.addStateTo($scope);
+        
+        $scope.execAction = (row, model, actionName) => {
+        	actions[actionName](row, model);
+        }
+
+
+        actions.loadTable();             
+
+        //you can override methods
+        
+        /*$scope.create = (row,model) =>{
+        	console.log("Override Method");
+        }*/
+    	
+    	
+	}
+
+	ChildCtrl2 = function($scope, store, actions)  {	
+	  	
+	  	store.addStateTo($scope);    	
+	}	
+
+	ChildCtrl3 = function($scope, store, actions)  {	  	
+	  	
+	  	store.addStateTo($scope);
+
+	  	$scope.testInmodal = "blablabla";
+
+	  	$scope.changePassword = (register) => {        	
+        	actions.changePassword(register);
+        }
+    	
+	}	
+
+
+	//herencia para funciones
+
+	ChildService = function($http)
+	{
+		let methods;
+
+		methods = Object.create(CrudServ($http));		
+		
+		methods.setPassword = (data) => {
+			return $http.post(SET_PASSWORD_END_POINT,data);
+		};
+
+		return methods;		
+	}	
+
+		
+
+
+	//instancia de app
+	let app = angular.module('UserPqr', ['flux',"ngTable","ui.bootstrap"]);
+
+
+	// Metodos reutilizables
+	app.service('actions', function (flux) {	    
+
+	    return flux.createActions([
+	      'renderview',
+	      'loadTable',
+	      'changePassword',	
+	      'showPasswordModal',      	      	              
+	    ]);
+	    
+	});
+
+  	app.service('store', function (flux,actions,CrudService,mutations) {
+  
+	    return flux.createStore(function () {	      
+
+	      this.addState({
+	        readyToDataTable:false,
+	      	isLoading:false,
+	      	dataTable:[],
+	      	currentModel:{},
+	      	newElement:{},
+	      	customActions:[],
+	      	modal:{ title: "Administrar contraseña" },
+	      	Roles:[],
+	      	register:{}
+	      });
+
+	      this.currentModelRow = {
+
+	      } 
+
+	      this.loadTable = function()
+	      {	      	  
+
+	      	this.getState('customActions').push({title:"Modificar Contraseña",faIcon:"fas fa-key",actionName:"showPasswordModal"});
+
+	      	console.log(this.getState('customActions'));
+
+	      	this.setState("isLoading",true);
+
+
+
+	      	let usuariosPQR = new table("seguros.usuariosPQR",CrudService,null);
+
+	      	usuariosPQR.false_foreignskey_subscriber = [];
+
+      		usuariosPQR.false_foreignskey_subscriber.push({ local_key:"rol", foreign_key:"id", foreign_value:"nombre", dataset: 'Roles'});
+
+	      	usuariosPQR.ready.then(response => { 		
+
+	      		let Roles = new table("seguros.usuariosPQRRoles",CrudService,null); 
+
+	      		this.setState("Roles",Roles);
+
+	      		mutations.generateDataTable(this,usuariosPQR);
+
+	      		
+	      		
+		    }).catch(error => {
+		    	console.error(error);
+
+		    });
+
+	      }
+
+	      this.showPasswordModal = function(row,model)
+	      {
+
+	      	this.currentModelRow = {
+	      		row,model
+	      	}
+
+	      	$("#PasswordModal").modal("show");
+	      }
+
+	      this.changePassword = function(register)
+	      {
+	      	if(register.password != register.repeatPassword)
+	      	{
+	      		return alert("Las contraseñas no coinciden");
+	      	}
+	      	else
+	      	{
+	      		register.Acc = "setPassword";
+	      		register.table = this.currentModelRow.model.table;
+	      		register.id = this.currentModelRow.row.id;
+	      		//console.log(register);
+	      		CrudService.setPassword(register).then(response=>{
+	      			if(response.data.status == 1)
+	      			{	      				
+	      				this.setState("register",{});
+	      			}
+	      			else{
+	      				alert("Sucedio un error");
+	      			}
+	      		});
+	      	}
+	      }
+
+	      this.listenTo(actions.loadTable, this.loadTable);
+
+	      this.listenTo(actions.changePassword, this.changePassword);
+
+	      this.listenTo(actions.showPasswordModal, this.showPasswordModal);	
+	    
+	    });
+	    
+	});
+
+	app.service('mutations', function(NgTableParams){
+
+		this.generateDataTable = (ref,tableSource) =>{
+
+				console.log(ref);
+	
+				datatable = new NgTableParams({},{ dataset: tableSource.rows});
+
+	      		console.log(datatable);
+			    	
+		    	ref.setState('dataTable', datatable);
+
+		    	ref.setState('currentModel', tableSource);
+					
+		    	ref.setState('readyToDataTable', true);
+
+		    	ref.setState("isLoading",false);
+
+		    	console.log(tableSource);			
+		}
+
+	});
+
+	/*
+
+		function mutations(){
+
+		this.generateDataTable = (ref,tableSource) =>{
+	
+				datatable = new NgTableParams({},{ dataset: tableSource.rows});
+
+	      		console.log(datatable);
+			    	
+		    	ref.setState('dataTable', datatable);
+
+		    	ref.setState('currentModel', tableSource);
+					
+		    	ref.setState('readyToDataTable', true);
+
+		    	ref.setState("isLoading",false);
+
+		    	console.log(tableSource);			
+		}
+
+	};
+
+
+	*/
+
+  
+
+  	//objetos reutilizables
+	app.factory('CrudService',ChildService);
+
+	app.controller("userController",ChildCtrl);
+
+	app.controller("frontController",ChildCtrl2);
+
+	app.controller("modalController",ChildCtrl3);
+
+	app.directive('contenteditable', function($timeout) {
+	    return {
+	      restrict: "A",
+	      priority: 1000,
+	      scope:{ngModel:"="},
+	      link: function(scope, element) {
+	        /*console.log(scope.ngModel);
+	        console.log(element);*/
+	        element.html(scope.ngModel);       
+	        element.on('focus blur keyup paste input', function() {
+	          //console.log("triggered");
+	          //console.log(scope.ngModel);
+	          scope.ngModel = element.text();
+	          scope.$apply();
+	          return element;
+	        });        
+	      }
+	    };
+  });
+
+
+</script>
+
+

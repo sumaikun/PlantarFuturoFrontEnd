@@ -1,0 +1,74 @@
+<div id="crud_table" class="table-responsive" ng-if="readyToDataTable">
+	<table   ng-table-dynamic="dataTable with currentModel.headers" class=" table table-responsive table-bordered" show-filter='true'>
+		<tr ng-repeat="row in $data">			
+
+			<td ng-repeat=" header in currentModel.headers " ng-init="col = get_column_by_reference(header,currentModel) ; current_false_foreign = evaluate_false_foreigners(col,currentModel.false_foreignskey_subscriber)"  filter="col.filter">
+				
+				<div class="resize_column">
+					
+					<!--Directiva no compila en ng-if pero si en ng-show -->
+
+					<p ng-show="current_false_foreign == false && col.Field != 'Opciones'" ng-model="row[col.Field]" ng-change="validateInput(col)" contenteditable="{{column_behavior(col)}}" >
+						{{::row[col.Field]}}
+					</p>
+
+					 <!----- Valor foraneo con conexión directa ---> 
+			        <!--
+			        <div ng-if ="col.Key == 'MUL'  " ng-dblclick='render_option = true'>        
+				        <span  ng-show="render_option == false " class="text_table" >{{foreign_value(col.key_data,row[col.Field])}}</span>
+				        <select ng-if ="render_option == true " class="form-control" ng-model="row[col.Field]">
+				          <option  ng-repeat="selector in dynamicSelectArray(col.key_data.REFERENCED_TABLE_NAME)"  ng-value="selector[col.key_data.REFERENCED_COLUMN_NAME]"   >
+				            {{selector[key_value]}}
+				          </option>
+				        </select>
+			      	</div>-->
+			       <!------------------------>
+
+			       <!----- Valor foraneo con conexión directa por objeto json--->
+					<select ng-if ="current_false_foreign != false" ng-model="row[col.Field]">
+						<option  ng-repeat="selector in dynamicArray(current_false_foreign.dataset)" value="{{selector[current_false_foreign.foreign_key]}}" ng-selected="selector[current_false_foreign.foreign_key] == row[col.Field] ">
+							{{selector[current_false_foreign.foreign_value]}}
+						</option>
+					</select>
+					<!------------------------>
+					
+					<div ng-if="col.Field == 'Opciones' ">
+						<button title="Editar" ng-click="edit(row,currentModel)"><i class="fas fa-edit"></i></button>
+						<button title="Eliminar" ng-click="delete(row,currentModel)"><i class="fas fa-trash"></i></button>
+
+						<!-- Custom Actions --> 
+						<button ng-repeat="action in customActions" title="{{action.title}}" ng-click="execAction(row,currentModel,action.actionName)"><i class="{{action.faIcon}}"></i></button>
+					
+					</div>
+
+				</div>				
+
+			</td>
+			
+			
+		</tr>
+		<tr>
+			<td ng-repeat=" header in currentModel.headers " ng-if="verifyColumnwithProperty(header)" ng-init="col = get_column_by_reference(header,currentModel) ; current_false_foreign = evaluate_false_foreigners(col,currentModel.false_foreignskey_subscriber)" filter="col.filter">
+
+				<p ng-show="current_false_foreign == false"  ng-model="newElement[col.Field]" contenteditable="{{column_behavior(col)}}" >
+					
+				</p>
+
+				<select ng-if ="current_false_foreign != false" ng-model="newElement[col.Field]">
+					<option  ng-repeat="selector in dynamicArray(current_false_foreign.dataset)" ng-value="selector[current_false_foreign.foreign_key]" >
+						{{selector[current_false_foreign.foreign_value]}}
+					</option>
+				</select>
+
+				<div ng-if="col.Field == 'Opciones' ">
+					
+
+					<button ng-click="create(newElement,currentModel)">Agregar</button>
+					
+				</div>
+
+			</td>	
+			
+		</tr>	
+	</table>
+</div>
